@@ -1,3 +1,9 @@
+'''
+General helper functions.
+Author: Kexuan Zou
+Date: Mar 19, 2018
+'''
+
 import cPickle, gzip, math
 import numpy as np
 

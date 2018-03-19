@@ -1,3 +1,21 @@
+'''
+Gaussian naive bayes classifier implementation, trained on MNIST dataset.
+Author: Kexuan Zou
+Date: Mar 19, 2018
+Confusion matrix:
+[[ 887    1   18   32    6   11   15    2    8    0]
+ [   0 1097   17   10    1    1    5    0    4    0]
+ [  22   36  877   40   13    1   17    9   16    1]
+ [   9   50   59  822   10    9    4   28    9   10]
+ [  14   15   25    6  853   11   14   17    5   22]
+ [  35   41   19  212   72  447   13   20   23   10]
+ [  16   19   35   10    7   18  851    0    2    0]
+ [   4   37   14   18   29    1    1  904    7   13]
+ [  13  131   40  194   83   31    6   30  420   26]
+ [   9   31    6   22  166    1    0  209    4  561]]
+Accuracy: 0.7719
+'''
+
 import util, math
 
 # summary helper function, evalute a {mean, sd} pair given data
@@ -28,16 +46,13 @@ def gaussian(x, mu, sd):
 # evaluate the posteriori probability
 def eval_probability(model, input, method="gaussian"):
     class_probs = {}
-    for c, elem in model.iteritems():
-        class_probs[c] = 1
-        for i in range(len(elem)):
-            x = input[i]
-            mu, sd = elem[i]
-            if method == "gaussian":
-                val = gaussian(x, mu, sd)
-                if val is None:
-                    print(x, mu, sd)
-                class_probs[c] *= val
+    if method == "gaussian":
+        for c, elem in model.iteritems():
+            class_probs[c] = 1
+            for i in range(len(elem)):
+                x = input[i]
+                mu, sd = elem[i]
+                class_probs[c] *= gaussian(x, mu, sd)
     return class_probs
 
 # given a feature vector, predict its label with the maximum a posteriori
