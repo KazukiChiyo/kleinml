@@ -6,6 +6,8 @@ Date: Mar 19, 2018
 
 import cPickle, gzip, math
 import numpy as np
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
 
 # calculate mean
 def mean(data):
@@ -17,12 +19,26 @@ def sd(data):
     var = sum([pow(x-mu,2) for x in data])/float(len(data)-1)
     return math.sqrt(var)
 
+# bind two np arrays vertically
+def vbind(feature, label):
+    if type(feature) is not np.ndarray:
+        feature = np.array(feature)
+    if type(label) is not np.ndarray:
+        label = np.array(label)
+    return np.c_[feature, label]
+
+# load iris data
+def load_iris():
+    iris = datasets.load_iris()
+    x_train, x_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=.2)
+    return x_train, y_train, x_test, y_test
+
 # load mnist data
 def load_mnist():
     f = gzip.open('mnist.pkl.gz', 'rb')
     train_set, valid_set, test_set = cPickle.load(f)
     f.close()
-    return train_set, valid_set, test_set
+    return train_set[0], train_set[1], test_set[0], test_set[1]
 
 # split the feature set into groups by labels
 def split_by_class(feature, label):
