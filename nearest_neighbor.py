@@ -1,19 +1,12 @@
 '''
-Nearest Neighbor classifier implementation, trained on MNIST dataset.
+Nearest Neighbor classifier implementation, trained on iris dataset.
 Author: Kexuan Zou
 Date: Mar 19, 2018
 Confusion matrix:
-[[ 8  0  0  0  0  0  0  0  0  0]
- [ 0 14  0  0  0  0  0  0  0  0]
- [ 0  0  8  0  0  0  0  0  0  0]
- [ 0  0  0 11  0  0  0  0  0  0]
- [ 0  0  0  0 14  0  0  0  0  0]
- [ 0  0  0  0  0  7  0  0  0  0]
- [ 0  0  0  0  0  0 10  0  0  0]
- [ 0  0  0  0  0  0  0 15  0  0]
- [ 0  0  0  0  0  0  0  0  2  0]
- [ 0  0  0  0  0  0  0  0  0 11]]
-Accuracy: 1.0
+[[13  0  0]
+ [ 0  8  0]
+ [ 0  1  8]]
+Accuracy: 0.966666666667
 '''
 
 from math import sqrt
@@ -64,10 +57,10 @@ class NearestNeighbors(object):
         return pred
 
 if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_mnist()
+    train_x, train_y, test_x, test_y = util.load_iris()
     model = NearestNeighbors(3)
     model.fit(train_x, train_y)
-    pred = model.predict(test_x[:100])
-    cm = util.confusion_matrix(test_y[:100], pred)
+    pred = model.predict(test_x)
+    cm = util.confusion_matrix(test_y, pred)
     print(cm)
     print(util.accuracy(cm))
