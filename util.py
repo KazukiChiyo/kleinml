@@ -50,6 +50,18 @@ def split_by_class(feature, label):
         classes[label[i]].append(feature[i])
     return classes
 
+def binclass_svm_split(train_x, train_y, test_x, test_y, c1=0, c2=1):
+    assert len(train_x) == len(train_y), "Training feature vector and label dimension does not match"
+    assert len(test_x) == len(test_y), "Testing feature vector and label dimension does not match"
+    train_classes = split_by_class(train_x, train_y)
+    test_classes = split_by_class(test_x, test_y)
+    train_x, train_y, test_x, test_y = [], [], [], []
+    train_x = train_classes[c1] + train_classes[c2]
+    train_y = [-1]*len(train_classes[c1]) + [1]*len(train_classes[c2])
+    test_x = list(test_classes[c1]) + list(test_classes[c2])
+    test_y = [-1]*len(test_classes[c1]) + [1]*len(test_classes[c2])
+    return train_x, train_y, test_x, test_y
+
 # get confusion matrix
 def confusion_matrix(true_y, pred_y, nc=None):
     assert len(true_y) == len(pred_y), "True label set and predicted label set dimension does not match"
