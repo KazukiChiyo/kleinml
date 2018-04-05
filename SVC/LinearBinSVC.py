@@ -162,10 +162,7 @@ class LinearBinSVC(object):
 
 if __name__ == '__main__':
     train_x, train_y, test_x, test_y = util.load_breast_cancer()
-    print(test_x)
-    print(test_y)
     train_x, train_y, test_x, test_y = util.binclass_svm_split(train_x, train_y, test_x, test_y)
-    print(test_y)
     model = LinearBinSVC()
     model.fit(train_x, train_y)
     pred = model.predict(test_x)
