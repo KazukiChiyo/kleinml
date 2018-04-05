@@ -1,17 +1,20 @@
 '''
-Linear support vector machine using Platt's SMO algorithm, trained on class 1 and 2 of the iris dataset.
+Linear binary support vector machine using Platt's SMO algorithm, trained on breast cancer dataset.
 Author: Kexuan Zou
 Date: Apr 1, 2018
 Confusion matrix:
-[[ 8  1]
- [ 0 13]]
-Accuracy: 0.954545454545
+[[42  5]
+ [11 56]]
+Accuracy: 0.859649122807
 '''
 
 from numpy import *
+import sys
+sys.path.append('../')
 import util
 
-class LinearSVC(object):
+
+class LinearBinSVC(object):
     def __init__ (self, C=1.0, tol=0.01, max_iter=1000):
         self.C = C
         self.tol = tol
@@ -158,9 +161,12 @@ class LinearSVC(object):
         return pred
 
 if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_iris()
-    train_x, train_y, test_x, test_y = util.binclass_svm_split(train_x, train_y, test_x, test_y, 1, 2)
-    model = LinearSVC()
+    train_x, train_y, test_x, test_y = util.load_breast_cancer()
+    print(test_x)
+    print(test_y)
+    train_x, train_y, test_x, test_y = util.binclass_svm_split(train_x, train_y, test_x, test_y)
+    print(test_y)
+    model = LinearBinSVC()
     model.fit(train_x, train_y)
     pred = model.predict(test_x)
     test_y = [0 if x==-1 else x for x in test_y]

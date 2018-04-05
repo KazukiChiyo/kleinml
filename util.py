@@ -33,6 +33,12 @@ def load_iris():
     x_train, x_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=.2)
     return x_train, y_train, x_test, y_test
 
+# load wine data
+def load_breast_cancer():
+    cancer = datasets.load_breast_cancer()
+    x_train, x_test, y_train, y_test = train_test_split(cancer.data, cancer.target, test_size=.2)
+    return x_train, y_train, x_test, y_test
+
 # load mnist data
 def load_mnist():
     f = gzip.open('mnist.pkl.gz', 'rb')
