@@ -3,12 +3,12 @@ Linear binary support vector machine using Platt's SMO algorithm, trained on bre
 Author: Kexuan Zou
 Date: Apr 1, 2018
 Confusion matrix:
-[[42  5]
- [11 56]]
-Accuracy: 0.859649122807
+[[42  0]
+ [10 62]]
+Accuracy: 0.912280701754
 '''
 
-from numpy import *
+import numpy as np
 import sys
 sys.path.append('../')
 import util
@@ -22,19 +22,19 @@ class LinearBinSVC(object):
 
     # calculate dual problem using SMO algorithm, evaulate weight of svm
     def fit(self, feature, label):
-        self.x = matrix(feature)
-        self.y = matrix(label).T
-        self.m = shape(self.y)[0]
-        self.alphas = matrix(zeros((self.m, 1)))
+        self.x = np.matrix(feature)
+        self.y = np.matrix(label).T
+        self.m = np.shape(self.y)[0]
+        self.alphas = np.matrix(np.zeros((self.m, 1)))
         self.b = 0
-        self.cache = matrix(zeros((self.m, 2))) # first column is a flag bit stating whether cache is valid
+        self.cache = np.matrix(np.zeros((self.m, 2))) # first column is a flag bit stating whether cache is valid
         self.smo()
         self.eval_weight()
         return self
 
     # loss function for a given alpha
     def error_k(self, k):
-        y_hat = float(multiply(self.alphas, self.y).T*(self.x*self.x[k,:].T) + self.b)
+        y_hat = float(np.multiply(self.alphas, self.y).T*(self.x*self.x[k,:].T) + self.b)
         error = y_hat - float(self.y[k])
         return error
 
@@ -42,7 +42,7 @@ class LinearBinSVC(object):
     def rand_j(self, i):
         j = i
         while (j == i):
-            j = int(random.uniform(0,self.m))
+            j = int(np.random.uniform(0,self.m))
         return j
 
     # truncate alpha value with higher and lower bound
@@ -57,7 +57,7 @@ class LinearBinSVC(object):
     def select_j(self, i, err_i):
         max_k, max_delta_err, err_j = -1, 0, 0
         self.cache[i] = [1, err_i]  # find alpha that gives the max_delta_err
-        cache_list = nonzero(self.cache[:,0].A)[0] # list all valid caches
+        cache_list = np.nonzero(self.cache[:,0].A)[0] # list all valid caches
         if (len(cache_list)) > 1: # if not at first iteration, select k from cache lsit
             for k in cache_list:   # iterate through valid caches and find max_delta_err
                 if k == i: # collision, skip current iteration
@@ -126,7 +126,7 @@ class LinearBinSVC(object):
                     pair_update_flag += self.update_pair(i)
                 iter += 1
             else: # go over non-bound alphas
-                nonBoundIs = nonzero((self.alphas.A > 0) * (self.alphas.A < self.C))[0]
+                nonBoundIs = np.nonzero((self.alphas.A > 0) * (self.alphas.A < self.C))[0]
                 for i in nonBoundIs:
                     pair_update_flag += self.update_pair(i)
                 iter += 1
@@ -137,15 +137,15 @@ class LinearBinSVC(object):
 
     # evaluate weight components of the svm
     def eval_weight(self):
-        m, n = shape(self.x)
-        self.w = zeros((n,1))
+        m, n = np.shape(self.x)
+        self.w = np.zeros((n,1))
         for i in range(m):
-            self.w += multiply(self.alphas[i]*self.y[i], self.x[i,:].T)
-        self.w = matrix(self.w)
+            self.w += np.multiply(self.alphas[i]*self.y[i], self.x[i,:].T)
+        self.w = np.matrix(self.w)
 
     # given a feature vector, predict its label
     def predict_one(self, target):
-        pred_mat = matrix(target)*matrix(self.w)+self.b
+        pred_mat = np.matrix(target)*np.matrix(self.w) + self.b
         pred = pred_mat[0, 0]
         if pred < 0:
             return -1
