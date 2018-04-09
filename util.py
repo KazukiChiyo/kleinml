@@ -45,6 +45,17 @@ def load_mnist():
     train_set, valid_set, test_set = cPickle.load(f)
     f.close()
     return train_set[0], train_set[1], test_set[0], test_set[1]
+    
+# load a custom dataset to test rbf kernel
+def load_rbf():
+    dataMat, labelMat = [], []
+    fr = open("testSetRBF.txt")
+    for line in fr.readlines():
+        lineArr = line.strip().split('\t')
+        dataMat.append([float(lineArr[0]), float(lineArr[1])])
+        labelMat.append(int(lineArr[2]))
+    x_train, x_test, y_train, y_test = train_test_split(dataMat, labelMat, test_size=.2)
+    return x_train, y_train, x_test, y_test
 
 # split the feature set into groups by labels
 def split_by_class(feature, label):
@@ -66,7 +77,7 @@ def binclass_svm_split(train_x, train_y, test_x, test_y, c1=0, c2=1):
     train_y = [-1]*len(train_classes[c1]) + [1]*len(train_classes[c2])
     test_x = list(test_classes[c1]) + list(test_classes[c2])
     test_y = [-1]*len(test_classes[c1]) + [1]*len(test_classes[c2])
-    return train_x, train_y, test_x, test_y
+    return np.array(train_x), np.array(train_y), np.array(test_x), np.array(test_y)
 
 # get confusion matrix
 def confusion_matrix(true_y, pred_y, nc=None):

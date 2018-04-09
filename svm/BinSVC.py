@@ -1,11 +1,11 @@
 '''
-Linear binary support vector machine using Platt's SMO algorithm, trained on breast cancer dataset.
+Binary support vector machine using Platt's SMO algorithm, trained on a custom rbf dataset.
 Author: Kexuan Zou
 Date: Apr 1, 2018
 Confusion matrix:
-[[42  0]
- [10 62]]
-Accuracy: 0.912280701754
+[[10  1]
+ [ 0  9]]
+Accuracy: 0.95
 '''
 
 import numpy as np
@@ -13,28 +13,53 @@ import sys
 sys.path.append('../')
 import util
 
-
-class LinearBinSVC(object):
-    def __init__ (self, C=1.0, tol=0.01, max_iter=1000):
+class BinSVC(object):
+    def __init__ (self, C=1.0, kernel="rbf", degree=3, gamma="auto", coef0=0.0, tol=0.01, max_iter=1000):
         self.C = C
+        self.kernel = kernel
+        self.degree = degree
+        self.gamma = gamma
+        self.coef0 = coef0
         self.tol = tol
         self.max_iter = max_iter
 
-    # calculate dual problem using SMO algorithm, evaulate weight of svm
+    # evaluate dual problem using SMO algorithm, evaulate weight of svm
     def fit(self, feature, label):
         self.x = np.matrix(feature)
         self.y = np.matrix(label).T
         self.m = np.shape(self.y)[0]
+        if self.gamma == "auto": # if auto, 1 / n_features will be used
+            self.gamma = 1.0/self.m
         self.alphas = np.matrix(np.zeros((self.m, 1)))
         self.b = 0
         self.cache = np.matrix(np.zeros((self.m, 2))) # first column is a flag bit stating whether cache is valid
+        self.k = np.matrix(np.zeros((self.m, self.m)))
+        for i in range(self.m):
+            self.k[:,i] = self.kernel_transform(self.x, self.x[i,:])
         self.smo()
-        self.eval_weight()
+        self.sv_x, self.sv_y, self.alphas = self.get_svs()
         return self
+
+    # apply kernel transformations to input data
+    def kernel_transform(self, X, A):
+        m,n = np.shape(X)
+        K = np.matrix(np.zeros((m,1)))
+        if self.kernel == "lin": # linear kernel: <x, x'>
+            K = X * A.T
+        elif self.kernel == "rbf": # rbf kernel: exp(-gamma|x-x'|^2)
+            for j in range(m):
+                deltaRow = X[j,:] - A
+                K[j] = deltaRow*deltaRow.T
+            K = np.exp(-self.gamma*K)
+        elif self.kernel == "poly": # polynomial kernel: (gamma<x, x'>+r)^d
+            K = (self.coef0 + np.inner(X, A)) ** self.degree
+        elif self.kernel == "sigmoid": # sigmoid kernel: tanh((gamma<x, x'>+r)^d)
+            K = np.tanh(self.gamma * np.dot(X, A) + self.coef0)
+        return K
 
     # loss function for a given alpha
     def error_k(self, k):
-        y_hat = float(np.multiply(self.alphas, self.y).T*(self.x*self.x[k,:].T) + self.b)
+        y_hat = float(np.multiply(self.alphas, self.y).T*self.k[:,k] + self.b)
         error = y_hat - float(self.y[k])
         return error
 
@@ -92,7 +117,7 @@ class LinearBinSVC(object):
                 hi = min(self.C, self.alphas[j] + self.alphas[i])
             if lo==hi:
                 return 0
-            eta = 2.0 * self.x[i,:]*self.x[j,:].T - self.x[i,:]*self.x[i,:].T - self.x[j,:]*self.x[j,:].T
+            eta = 2.0 * self.k[i,j] - self.k[i,i] - self.k[j,j]
             if eta >= 0:
                 return 0
             self.alphas[j] -= self.y[j]*(err_i - err_j)/eta
@@ -102,8 +127,8 @@ class LinearBinSVC(object):
                 return 0
             self.alphas[i] += self.y[j]*self.y[i]*(old_j - self.alphas[j]) # update i by the same amount as j
             self.update_err_k(i) # update error_k for i in the cache
-            b1 = self.b - err_i- self.y[i]*(self.alphas[i] - old_i)*self.x[i,:]*self.x[i,:].T - self.y[j]*(self.alphas[j] - old_j)*self.x[i,:]*self.x[j,:].T
-            b2 = self.b - err_j- self.y[i]*(self.alphas[i] - old_i)*self.x[i,:]*self.x[j,:].T - self.y[j]*(self.alphas[j] - old_j)*self.x[j,:]*self.x[j,:].T
+            b1 = self.b - err_i- self.y[i]*(self.alphas[i] - old_i)*self.k[i,i] - self.y[j]*(self.alphas[j] - old_j)*self.k[i,j]
+            b2 = self.b - err_j- self.y[i]*(self.alphas[i] - old_i)*self.k[i,j] - self.y[j]*(self.alphas[j] - old_j)*self.k[j,j]
             if (0 < self.alphas[i]) and (self.C > self.alphas[i]):
                 self.b = b1
             elif (0 < self.alphas[j]) and (self.C > self.alphas[j]):
@@ -134,23 +159,18 @@ class LinearBinSVC(object):
                 entire_flag = False #toggle entire set loop
             elif (pair_update_flag == 0):
                 entire_flag = True
-
-    # evaluate weight components of the svm
-    def eval_weight(self):
-        m, n = np.shape(self.x)
-        self.w = np.zeros((n,1))
-        for i in range(m):
-            self.w += np.multiply(self.alphas[i]*self.y[i], self.x[i,:].T)
-        self.w = np.matrix(self.w)
+    
+    # get all support vectors, their corresponding labels, and non-zero alphas by finding the indices of non-zero alphas
+    def get_svs(self):
+        idx = np.nonzero(self.alphas.A>0)[0]
+        return self.x[idx], self.y[idx], self.alphas[idx]
 
     # given a feature vector, predict its label
     def predict_one(self, target):
-        pred_mat = np.matrix(target)*np.matrix(self.w) + self.b
-        pred = pred_mat[0, 0]
-        if pred < 0:
-            return -1
-        else:
-            return 1
+        tarmat = np.matrix(target)
+        k = self.kernel_transform(self.sv_x, tarmat)
+        pred_mat = k.T * np.multiply(self.sv_y, self.alphas) + self.b
+        return np.sign(pred_mat[0,0]).astype(int)
 
     # predict an unlabeled dataset
     def predict(self, dataset):
@@ -161,12 +181,11 @@ class LinearBinSVC(object):
         return pred
 
 if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_breast_cancer()
-    train_x, train_y, test_x, test_y = util.binclass_svm_split(train_x, train_y, test_x, test_y)
-    model = LinearBinSVC()
+    train_x, train_y, test_x, test_y = util.load_rbf()
+    train_y = [-1 if x==0 else x for x in train_y]
+    model = BinSVC(gamma=5)
     model.fit(train_x, train_y)
     pred = model.predict(test_x)
-    test_y = [0 if x==-1 else x for x in test_y]
     pred = [0 if x==-1 else x for x in pred]
     cm = util.confusion_matrix(test_y, pred)
     print(cm)
