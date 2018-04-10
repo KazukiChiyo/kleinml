@@ -4,20 +4,11 @@ Author: Kexuan Zou
 Date: Mar 19, 2018
 '''
 
-import cPickle, gzip, math
+import cPickle, gzip
 import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-
-# calculate mean
-def mean(data):
-    return sum(data)/float(len(data))
-
-# calculate sd
-def sd(data):
-    mu = mean(data)
-    var = sum([pow(x-mu,2) for x in data])/float(len(data)-1)
-    return math.sqrt(var)
+import os
 
 # bind two np arrays vertically
 def vbind(feature, label):
@@ -39,17 +30,29 @@ def load_breast_cancer():
     x_train, x_test, y_train, y_test = train_test_split(cancer.data, cancer.target, test_size=.2)
     return x_train, y_train, x_test, y_test
 
+# load digits data
+def load_digits():
+    digits = datasets.load_digits()
+    x_train, x_test, y_train, y_test = train_test_split(digits.data, digits.target, test_size=.2)
+    return x_train, y_train, x_test, y_test
+
 # load mnist data
 def load_mnist():
-    f = gzip.open('mnist.pkl.gz', 'rb')
+    script_dir = os.path.dirname(__file__)
+    rel_path = "data/mnist.pkl.gz"
+    abs_file_path = os.path.join(script_dir, rel_path)
+    f = gzip.open(abs_file_path, 'rb')
     train_set, valid_set, test_set = cPickle.load(f)
     f.close()
     return train_set[0], train_set[1], test_set[0], test_set[1]
-    
+
 # load a custom dataset to test rbf kernel
 def load_rbf():
     dataMat, labelMat = [], []
-    fr = open("testSetRBF.txt")
+    script_dir = os.path.dirname(__file__)
+    rel_path = "data/testSetRBF.txt"
+    abs_file_path = os.path.join(script_dir, rel_path)
+    fr = open(abs_file_path)
     for line in fr.readlines():
         lineArr = line.strip().split('\t')
         dataMat.append([float(lineArr[0]), float(lineArr[1])])
