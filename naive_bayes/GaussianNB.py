@@ -31,7 +31,7 @@ class GaussianNB(object):
 
     # evaluate feature set into [mean, sd] pairs
     def fit(self, X, Y):
-        classes = [[x for x, t in zip(X, Y) if t == c] for c in np.unique(Y)]
+        classes = [[x for x, y in zip(X, Y) if y == c] for c in np.unique(Y)]
         self.model = self.stat(classes)
         return self
 
@@ -42,7 +42,7 @@ class GaussianNB(object):
                 return 1;
             else:
                 return 0;
-        exponent = np.exp(-((x - mu)**2 / (2*sd**2)))
+        exponent = np.exp(-((x - mu)**2/(2*sd**2)))
         gaussian_prob = exponent/(np.sqrt(2*np.pi)*sd)
         if gaussian_prob == 0:
             return 0
@@ -50,7 +50,7 @@ class GaussianNB(object):
 
     # predict an unlabeled dataset
     def predict(self, X):
-        prob_mat = [[sum(self.gaussian(i, *s) for s, i in zip(summaries, x)) for summaries in self.model] for x in X]
+        prob_mat = [[sum(self.gaussian(i, *s) for s, i in zip(stat, x)) for stat in self.model] for x in X]
         return np.argmax(prob_mat, axis=1)
 
 if __name__ == '__main__':

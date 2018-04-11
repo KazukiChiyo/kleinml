@@ -47,7 +47,7 @@ class BernoulliNB(object):
     def fit(self, X, Y):
         bin_X = self.do_binarize(X)
         self.n_obs = X.shape[0]
-        classes = [[x for x, t in zip(bin_X, Y) if t == c] for c in np.unique(Y)]
+        classes = [[x for x, y in zip(bin_X, Y) if y == c] for c in np.unique(Y)]
         self.class_prior = self.class_log_prior(classes)
         self.model = self.feature_prob(classes)
         return self
