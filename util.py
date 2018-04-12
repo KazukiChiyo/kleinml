@@ -8,6 +8,7 @@ import cPickle, gzip
 import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 import os
 
 # bind two np arrays vertically
@@ -17,6 +18,12 @@ def vbind(feature, label):
     if type(label) is not np.ndarray:
         label = np.array(label)
     return np.c_[feature, label]
+
+# load diabetes dataset
+def load_diabetes():
+    data, target = datasets.load_diabetes(return_X_y=True)
+    x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=.2)
+    return x_train, y_train, x_test, y_test
 
 # load iris data
 def load_iris():
@@ -58,6 +65,19 @@ def load_rbf():
         dataMat.append([float(lineArr[0]), float(lineArr[1])])
         labelMat.append(int(lineArr[2]))
     x_train, x_test, y_train, y_test = train_test_split(dataMat, labelMat, test_size=.2)
+    return x_train, y_train, x_test, y_test
+
+# load the hiragana dataset
+def load_hiragana():
+    script_dir = os.path.dirname(__file__)
+    rel_path_x = "data/hiragana_x.dat"
+    rel_path_y = "data/hiragana_y.dat"
+    abs_file_path_x = os.path.join(script_dir, rel_path_x)
+    abs_file_path_y = os.path.join(script_dir, rel_path_y)
+    X = np.fromfile(abs_file_path_x, dtype=np.float32)
+    Y = np.fromfile(abs_file_path_y, dtype=np.int)
+    X = X.reshape(Y.shape[0], 32*32)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=.2)
     return x_train, y_train, x_test, y_test
 
 # split the feature set into groups by labels
@@ -117,3 +137,12 @@ def accuracy_score(true_y, pred_y):
         if true_y[i] == pred_y[i]:
             count += 1
     return float(count)/float(len(true_y))
+
+# plot a 2d image array
+def implot(img, dim=None):
+    if type(img) is not np.ndarray:
+        img = np.array(img)
+    if dim is not None:
+        img = img.reshape(dim)
+    plt.imshow(img)
+    plt.show()
