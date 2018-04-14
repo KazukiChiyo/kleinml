@@ -3,8 +3,11 @@ General helper functions.
 Author: Kexuan Zou
 Date: Mar 19, 2018
 '''
-
-import cPickle, gzip
+try:
+   import cPickle as pickle
+except:
+   import pickle
+import gzip
 import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -49,7 +52,7 @@ def load_mnist():
     rel_path = "data/mnist.pkl.gz"
     abs_file_path = os.path.join(script_dir, rel_path)
     f = gzip.open(abs_file_path, 'rb')
-    train_set, valid_set, test_set = cPickle.load(f)
+    train_set, valid_set, test_set = pickle.load(f)
     f.close()
     return train_set[0], train_set[1], test_set[0], test_set[1]
 

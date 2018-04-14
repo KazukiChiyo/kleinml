@@ -19,13 +19,13 @@ class Ridge(object):
     def fit(self, X, Y):
         X = X.astype(float)
         Y = Y.astype(float)
-        X = np.column_stack([X, np.ones(len(X))]) # insert ones as intercept
+        X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
         self.w = la.inv(X.T.dot(X) + self.alpha*np.identity(len(X[0]))).dot(X.T).dot(Y)
         return self
     
     # predict an unlabeled dataset
     def predict(self, X):
-        X = np.column_stack([X, np.ones(len(X))]) # insert ones as intercept
+        X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
         return X.dot(self.w)
     
     # score of the model
