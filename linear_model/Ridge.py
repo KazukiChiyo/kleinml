@@ -33,7 +33,7 @@ class Ridge(object):
         return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
         
 if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_diabetes()    
+    train_x, train_y, test_x, test_y = util.load_diabetes()
     model = Ridge(alpha=0.2)
     model.fit(train_x, train_y)
     score = model.score(test_x, test_y)

@@ -1,8 +1,8 @@
 '''
-Linear least squares with l1 regularization implementation, trained on the diabetes dataset.
+Linear least squares with l1 regularization implementation (coordinate descent), trained on the diabetes dataset.
 Author: Kexuan Zou
-Date: Apr 12, 2018.
-Score: 
+Date: Apr 13, 2018.
+Score: 0.541883356956s
 '''
 
 import numpy as np
@@ -15,27 +15,29 @@ class Lasso(object):
         self.alpha = alpha
         self.max_iter = max_iter
     
-    def adjust(self, x, threshold):
-        if x > 0 and threshold < abs(x):
-            return x - threshold
-        elif x < 0 and threshold  < abs(x):
-            return x + threshold
+    # apply non-linear soft thresholding
+    def soft_threasholding(self, w, threshold):
+        if w > 0 and threshold < abs(w):
+            return w - threshold
+        elif w < 0 and threshold  < abs(w):
+            return w + threshold
         else:
             return 0
 
+    # evaluate w by coordinate descent
     def fit(self, X, Y):
-        n_features = X.shape[0]
         X = np.column_stack([np.ones(len(X)), X])
+        n_features = X.shape[0]
         w = np.zeros(X.shape[1])
         w[0] = np.sum(Y - np.dot(X[:,1:], w[1:]))/n_features
         for _ in range(self.max_iter):
             for i in range(1, len(w)):
                 w_iter = w[:] # perform a deep copy
-                w_iter[0] = 0.0
-                err_i = Y - np.dot(X, w_iter)
-                x = np.dot(X[:, i], err_i)
+                w_iter[i] = 0.0
+                res_i = Y - np.dot(X, w_iter)
+                w_star = np.dot(X[:, i], res_i)
                 threshold = self.alpha*n_features
-                w[i] = self.adjust(x, threshold)/(X[:, i]**2).sum()
+                w[i] = self.soft_threasholding(w_star, threshold)/(X[:, i]**2).sum()
                 w[0] = np.sum(Y - np.dot(X[:,1:], w[1:]))/n_features
         self.w = w
         return self
@@ -50,8 +52,8 @@ class Lasso(object):
         return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
             
 if __name__ == '__main__':
-    X = np.array([[1], [2], [3], [4], [5]])
-    Y = np.array([1, 2, 3, 4, 5])
-    model = Lasso(alpha=1.0)
-    model.fit(X, Y)
-    print(model.w)
+    train_x, train_y, test_x, test_y = util.load_diabetes()
+    model = Lasso(alpha=0.2)
+    model.fit(train_x, train_y)
+    score = model.score(test_x, test_y)
+    print(score)

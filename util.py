@@ -24,8 +24,8 @@ def vbind(feature, label):
 
 # load diabetes dataset
 def load_diabetes():
-    data, target = datasets.load_diabetes(return_X_y=True)
-    x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=.2)
+    diabetes = datasets.load_diabetes()
+    x_train, x_test, y_train, y_test = train_test_split(diabetes.data, diabetes.target, test_size=.2)
     return x_train, y_train, x_test, y_test
 
 # load iris data
