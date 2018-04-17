@@ -2,7 +2,7 @@
 Linear least squares with l1 regularization implementation (coordinate descent), trained on the diabetes dataset.
 Author: Kexuan Zou
 Date: Apr 13, 2018.
-Score: 0.541883356956s
+Score: 0.323914097526
 '''
 
 import numpy as np
@@ -26,6 +26,8 @@ class Lasso(object):
 
     # evaluate w by coordinate descent
     def fit(self, X, Y):
+        X = X.astype(float)
+        Y = Y.astype(float)
         X = np.column_stack([np.ones(len(X)), X])
         n_features = X.shape[0]
         w = np.zeros(X.shape[1])
@@ -53,6 +55,7 @@ class Lasso(object):
             
 if __name__ == '__main__':
     train_x, train_y, test_x, test_y = util.load_diabetes()
+    train_x, test_x = train_x[:,np.newaxis,2], test_x[:,np.newaxis, 2]
     model = Lasso(alpha=0.2)
     model.fit(train_x, train_y)
     score = model.score(test_x, test_y)

@@ -2,7 +2,7 @@
 Linear least squares with l2 regularization implementation, trained on the diabetes dataset.
 Author: Kexuan Zou
 Date: Apr 12, 2018.
-Score: 0.55560274266907628
+Score: 0.333144082891
 '''
 
 import numpy as np
@@ -34,6 +34,7 @@ class Ridge(object):
         
 if __name__ == '__main__':
     train_x, train_y, test_x, test_y = util.load_diabetes()
+    train_x, test_x = train_x[:,np.newaxis,2], test_x[:,np.newaxis, 2]
     model = Ridge(alpha=0.2)
     model.fit(train_x, train_y)
     score = model.score(test_x, test_y)

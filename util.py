@@ -58,30 +58,32 @@ def load_mnist():
 
 # load a custom dataset to test rbf kernel
 def load_rbf():
-    dataMat, labelMat = [], []
-    script_dir = os.path.dirname(__file__)
-    rel_path = "data/testSetRBF.txt"
-    abs_file_path = os.path.join(script_dir, rel_path)
-    fr = open(abs_file_path)
-    for line in fr.readlines():
-        lineArr = line.strip().split('\t')
-        dataMat.append([float(lineArr[0]), float(lineArr[1])])
-        labelMat.append(int(lineArr[2]))
+    dataMat, labelMat = load_txt("data/testSetRBF.txt")
     x_train, x_test, y_train, y_test = train_test_split(dataMat, labelMat, test_size=.2)
     return x_train, y_train, x_test, y_test
 
-# load the hiragana dataset
-def load_hiragana():
+# generate a regression model with the form y = slope*x + err
+def load_lm(slope, intercept, sd, n):
+    x = np.random.randint(0, 100, size=n)
+    err = np.random.randn(n)*sd
+    x_train, x_test, y_train, y_test = train_test_split(x, x*slope + err + intercept, test_size=.2)
+    return x_train.reshape(-1, 1), y_train, x_test.reshape(-1, 1), y_test
+
+# load a dataset in a .txt file, separated by \t
+def load_txt(rel_path):
     script_dir = os.path.dirname(__file__)
-    rel_path_x = "data/hiragana_x.dat"
-    rel_path_y = "data/hiragana_y.dat"
-    abs_file_path_x = os.path.join(script_dir, rel_path_x)
-    abs_file_path_y = os.path.join(script_dir, rel_path_y)
-    X = np.fromfile(abs_file_path_x, dtype=np.float32)
-    Y = np.fromfile(abs_file_path_y, dtype=np.int)
-    X = X.reshape(Y.shape[0], 32*32)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=.2)
-    return x_train, y_train, x_test, y_test
+    abs_file_path = os.path.join(script_dir, rel_path)
+    max_idx = len(open(abs_file_path).readline().split('\t')) - 1 #get number of fields 
+    dataMat = []; labelMat = []
+    fr = open(abs_file_path)
+    for line in fr.readlines():
+        lineArr =[]
+        curLine = line.strip().split('\t')
+        for i in range(max_idx):
+            lineArr.append(float(curLine[i]))
+        dataMat.append(lineArr)
+        labelMat.append(int(curLine[-1]))
+    return dataMat,labelMat
 
 # split the feature set into groups by labels
 def split_by_class(feature, label):
