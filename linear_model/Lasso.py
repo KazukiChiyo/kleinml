@@ -1,8 +1,8 @@
 '''
-Linear least squares with l1 regularization implementation (coordinate descent), trained on the diabetes dataset.
+Linear least squares with l1 regularization implementation (coordinate descent), trained on the eruption dataset.
 Author: Kexuan Zou
 Date: Apr 13, 2018.
-Score: 0.323914097526
+Score: 0.837822200624
 '''
 
 import numpy as np
@@ -14,7 +14,7 @@ class Lasso(object):
     def __init__(self, alpha=1.0, max_iter=1000):
         self.alpha = alpha
         self.max_iter = max_iter
-    
+
     # apply non-linear soft thresholding
     def soft_threasholding(self, w, threshold):
         if w > 0 and threshold < abs(w):
@@ -43,19 +43,18 @@ class Lasso(object):
                 w[0] = np.sum(Y - np.dot(X[:,1:], w[1:]))/n_features
         self.w = w
         return self
-    
+
     # predict an unlabeled dataset
     def predict(self, X):
         X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
         return X.dot(self.w)
-    
+
     # score of the model
     def score(self, X, Y):
         return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
-            
+
 if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_diabetes()
-    train_x, test_x = train_x[:,np.newaxis,2], test_x[:,np.newaxis, 2]
+    train_x, train_y, test_x, test_y = util.load_eruption()
     model = Lasso(alpha=0.2)
     model.fit(train_x, train_y)
     score = model.score(test_x, test_y)

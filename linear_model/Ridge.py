@@ -1,8 +1,8 @@
 '''
-Linear least squares with l2 regularization implementation, trained on the diabetes dataset.
+Linear least squares with l2 regularization implementation, trained on the eruption dataset.
 Author: Kexuan Zou
 Date: Apr 12, 2018.
-Score: 0.333144082891
+Score: 0.810961156907
 '''
 
 import numpy as np
@@ -14,7 +14,7 @@ import util
 class Ridge(object):
     def __init__(self, alpha=1.0):
         self.alpha = alpha
-    
+
     # evaluate ridge regression coefficient: w_hat = (X^T X + alpha I)^-1 X^T Y
     def fit(self, X, Y):
         X = X.astype(float)
@@ -22,19 +22,18 @@ class Ridge(object):
         X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
         self.w = la.inv(X.T.dot(X) + self.alpha*np.identity(len(X[0]))).dot(X.T).dot(Y)
         return self
-    
+
     # predict an unlabeled dataset
     def predict(self, X):
         X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
         return X.dot(self.w)
-    
+
     # score of the model
     def score(self, X, Y):
         return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
-        
+
 if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_diabetes()
-    train_x, test_x = train_x[:,np.newaxis,2], test_x[:,np.newaxis, 2]
+    train_x, train_y, test_x, test_y = util.load_eruption()
     model = Ridge(alpha=0.2)
     model.fit(train_x, train_y)
     score = model.score(test_x, test_y)
