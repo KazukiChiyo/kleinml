@@ -3,6 +3,7 @@ General helper functions.
 Author: Kexuan Zou
 Date: Mar 19, 2018
 '''
+
 try:
    import cPickle as pickle
 except:
@@ -62,6 +63,11 @@ def load_rbf():
     x_train, x_test, y_train, y_test = train_test_split(dataMat, labelMat, test_size=.2)
     return x_train, y_train, x_test, y_test
 
+def load_eruption():
+    dataMat, labelMat = load_txt("data/eruption.dat", label_type="float")
+    x_train, x_test, y_train, y_test = train_test_split(dataMat[:,-1], labelMat, test_size=.2)
+    return x_train.reshape(-1, 1), y_train, x_test.reshape(-1, 1), y_test
+
 # generate a regression model with the form y = slope*x + err
 def load_lm(slope, intercept, sd, n):
     x = np.random.randint(0, 100, size=n)
@@ -70,10 +76,10 @@ def load_lm(slope, intercept, sd, n):
     return x_train.reshape(-1, 1), y_train, x_test.reshape(-1, 1), y_test
 
 # load a dataset in a .txt file, separated by \t
-def load_txt(rel_path):
+def load_txt(rel_path, label_type="int"):
     script_dir = os.path.dirname(__file__)
     abs_file_path = os.path.join(script_dir, rel_path)
-    max_idx = len(open(abs_file_path).readline().split('\t')) - 1 #get number of fields 
+    max_idx = len(open(abs_file_path).readline().split('\t')) - 1 #get number of fields
     dataMat = []; labelMat = []
     fr = open(abs_file_path)
     for line in fr.readlines():
@@ -82,8 +88,11 @@ def load_txt(rel_path):
         for i in range(max_idx):
             lineArr.append(float(curLine[i]))
         dataMat.append(lineArr)
-        labelMat.append(int(curLine[-1]))
-    return dataMat,labelMat
+        if label_type == "int":
+            labelMat.append(int(curLine[-1]))
+        elif label_type == "float":
+            labelMat.append(float(curLine[-1]))
+    return np.array(dataMat), np.array(labelMat)
 
 # split the feature set into groups by labels
 def split_by_class(feature, label):
