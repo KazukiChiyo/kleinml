@@ -24,9 +24,12 @@ def vbind(feature, label):
     return np.c_[feature, label]
 
 # load diabetes dataset
-def load_diabetes():
+def load_diabetes(catog=True):
     diabetes = datasets.load_diabetes()
     x_train, x_test, y_train, y_test = train_test_split(diabetes.data, diabetes.target, test_size=.2)
+    if catog == True:
+        y_train = [0 if y < 126 else 1 for y in y_train]
+        y_test = [0 if y < 126 else 1 for y in y_test]
     return x_train, y_train, x_test, y_test
 
 # load iris data
@@ -35,7 +38,7 @@ def load_iris():
     x_train, x_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=.2)
     return x_train, y_train, x_test, y_test
 
-# load wine data
+# load breast cancer data
 def load_breast_cancer():
     cancer = datasets.load_breast_cancer()
     x_train, x_test, y_train, y_test = train_test_split(cancer.data, cancer.target, test_size=.2)

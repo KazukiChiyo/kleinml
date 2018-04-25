@@ -1,5 +1,5 @@
 '''
-Stochastic Gradient Descent on linear regression, trained on the eruption dataset.
+Stochastic gradient descent on linear regression, trained on the eruption dataset.
 Author: Kexuan Zou
 Date: Apr 17, 2018.
 Score: 0.544482300731
@@ -11,16 +11,17 @@ sys.path.append('../')
 import util
 
 class SGDRegressor(object):
-    def __init__(self, shuffle=True, max_iter=1000, batch_size=16, learning_rate="constant", eta0=0.001, decay=50.0, power_t=0.5):
+    def __init__(self, alpha=0.1, shuffle=True, max_iter=1000, tol=0.0001, batch_size=16, learning_rate="constant", eta0=0.001, power_t=0.5):
+        self.alpha = alpha
         self.shuffle = shuffle
         self.max_iter = max_iter
+        self.tol_2 = tol**2
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.eta0 = eta0
-        self.decay = decay
         self.power_t = power_t
 
-    # main training loop for stochastic gradient descent by repeatedly updatinng w on single steps until finished all iterations or batches.
+    # main training loop for stochastic gradient descent by repeatedly updating w on single steps until finished all iterations or batches.
     def fit(self, X, Y):
         X = X.astype(float)
         Y = Y.astype(float)
@@ -33,7 +34,9 @@ class SGDRegressor(object):
             X_batch = X_shuffle[i*self.batch_size:min((i + 1)*self.batch_size, X_shuffle.shape[0])]
             Y_batch = Y_shuffle[i*self.batch_size:min((i + 1)*self.batch_size, Y_shuffle.shape[0])]
             if len(X_batch) != 0:
-                self.update_step(X_batch, Y_batch, i)
+                update = self.update_step(X_batch, Y_batch, i)
+                if not update:
+                    break
         self.w = self.w[:,0]
         return self
 
@@ -46,13 +49,16 @@ class SGDRegressor(object):
         self.X = np.column_stack([np.ones(len(X)), X])
         y_hat = self.X.dot(self.w)
         grad = self.gradient(y_hat, Y)
+        if np.sum(grad**2) <= self.tol_2: # if gradient change is less than tolerance, the desent process converges
+            return False
         if self.learning_rate == "constant":
             eta = self.eta0
         elif self.learning_rate == "optimal":
-            eta = self.eta0/(1. + self.decay*t)
+            eta = self.eta0/(1.0 + self.alpha*t)
         elif self.learning_rate == "invscaling":
             eta = self.eta0 / pow(t, self.power_t)
         self.w = self.w - eta*1.0/self.batch_size*grad
+        return True
 
     # predict an unlabeled dataset
     def predict(self, X):
