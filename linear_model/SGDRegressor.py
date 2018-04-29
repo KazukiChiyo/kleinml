@@ -25,7 +25,8 @@ class SGDRegressor(object):
     def fit(self, X, Y):
         X = X.astype(float)
         Y = Y.astype(float)
-        self.w = np.zeros((X.shape[1]+1, self.batch_size)) # weight plus intercept term, duplicated in column4
+        self.w = np.zeros((X.shape[1]+1, 1))
+        print(self.w)
         for i in range(self.max_iter):
             if self.shuffle: # if data is shuffled
                 shuffle_set = util.vbind(X, Y) # bind X and Y before shuffling
@@ -37,7 +38,8 @@ class SGDRegressor(object):
                 update = self.update_step(X_batch, Y_batch, i)
                 if not update:
                     break
-        self.w = self.w[:,0]
+        self.w = self.w.flatten() # flatten w to a 1d array
+        print(self.w)
         return self
 
     # compute the gradient of loss with respect to w g[L(t)]
@@ -56,8 +58,9 @@ class SGDRegressor(object):
         elif self.learning_rate == "optimal":
             eta = self.eta0/(1.0 + self.alpha*t)
         elif self.learning_rate == "invscaling":
-            eta = self.eta0 / pow(t, self.power_t)
+            eta = self.eta0/pow(t, self.power_t)
         self.w = self.w - eta*1.0/self.batch_size*grad
+        print("At iteration "+str(t)+str(self.w))
         return True
 
     # predict an unlabeled dataset
