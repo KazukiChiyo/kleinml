@@ -8,13 +8,14 @@ Confusion Matrix:
  [ 0  0 12]]
 Accuracy: 0.833333333333
 '''
+
 import numpy as np
 import sys
 sys.path.append('../')
 import util
 
 class LinearSVC(object):
-    def __init__(self, C=1.0, shuffle=True, max_iter=1000, tol=0.0001, batch_size=4, eta0=0.01, weight_decay=0.001):
+    def __init__(self, C=1.0, shuffle=True, max_iter=1000, tol=0.0001, batch_size=16, eta0=0.01, weight_decay=0.001):
         self.C = C
         self.shuffle = shuffle
         self.max_iter = max_iter
@@ -74,7 +75,7 @@ class LinearSVC(object):
 
 if __name__ == '__main__':
     train_x, train_y, test_x, test_y = util.load_iris()
-    model = LinearSVC()
+    model = LinearSVC(batch_size=4)
     model.fit(train_x, train_y)
     pred = model.predict(test_x)
     cm = util.confusion_matrix(test_y, pred)
