@@ -1,12 +1,11 @@
-'''
-Logistic regression with stochastic gradient descent, trained on the diabetes dataset.
+"""
 Author: Kexuan Zou
 Date: Apr 23, 2018.
 Confusion Matrix:
 [[19 17]
  [ 7 46]]
 Accuracy: 0.730337078652
-'''
+"""
 
 import numpy as np
 import sys
@@ -14,11 +13,21 @@ sys.path.append('../')
 import util
 
 class LogisticRegression(object):
+    """Logistic regression with stochastic gradient descent.
+    Parameters:
+    -----------
+    tol: float
+        Precision of the solution.
+    max_iter: int, optional
+        Maximum number of iterations for gradient descent.
+    eta0: double, optional
+        The initial learning rate.
+    """
     def __init__(self, tol=0.001, max_iter=1000, eta0=1e-3):
         self.tol_2 = tol**2
         self.max_iter = max_iter
         self.eta0 = eta0
-    
+
     # main train loop for stochastic gradient descent by repeatedly updating w on single steps until finished all iterations.
     def fit(self, X, Y):
         X = X.astype(float)

@@ -15,15 +15,14 @@ sys.path.append('../')
 import util
 
 class LinearSVC(object):
-    def __init__(self, C=1.0, shuffle=True, max_iter=1000, tol=0.0001, batch_size=16, eta0=0.01, weight_decay=0.001):
-        self.C = C
+    def __init__(self, C=1.0, shuffle=True, max_iter=1000, tol=0.0001, batch_size=16, eta0=0.01):
         self.shuffle = shuffle
         self.max_iter = max_iter
         self.tol_2 = tol**2
         self.batch_size = batch_size
         self.eta0 = eta0
-        self.weight_decay = weight_decay
-    
+        self.weight_decay = 1./C
+
     # main training loop using stochastic gradient descent, update w in max_iter number of small steps.
     def fit(self, X, Y):
         X = X.astype(float)
@@ -53,7 +52,7 @@ class LinearSVC(object):
         for i in range(len(Y)):
             if Y[i]*self.X[i].dot(self.w) < 1:
                 loss_grad -= (Y[i]*self.X[i]).reshape(loss_grad.shape)
-        return self.C*loss_grad + reg_grad
+        return loss_grad + reg_grad
 
     # update w on a single step: w(t+1) = w(t) - eta*g[L(t)]/n
     def update_step(self, X, Y, t):
@@ -64,7 +63,7 @@ class LinearSVC(object):
             return False
         self.w = self.w - self.eta0*1.0/self.batch_size*grad
         return True
-    
+
     # return the maximum-likelihood class label for a single element
     def predict_one(self, x):
         return max((x.dot(w), c) for w, c in self.model)[1]

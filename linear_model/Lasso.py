@@ -1,9 +1,8 @@
-'''
-Linear least squares with l1 regularization implementation (coordinate descent), trained on the eruption dataset.
+"""
 Author: Kexuan Zou
 Date: Apr 13, 2018.
 Score: 0.837822200624
-'''
+"""
 
 import numpy as np
 import sys
@@ -11,6 +10,14 @@ sys.path.append('../')
 import util
 
 class Lasso(object):
+    """Linear least squares with l1 regularization implementation (coordinate descent).
+    Parameters:
+    -----------
+    alpha: float
+        Strength of regularizaton and feature shrinkage.
+    max_iter: int, optional
+        Maximum number of iterations for gradient descent.
+    """
     def __init__(self, alpha=1.0, max_iter=1000):
         self.alpha = alpha
         self.max_iter = max_iter
