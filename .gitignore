@@ -18,9 +18,6 @@
 # but ignore some files in that folder
 /data/.DS_Store
 
-# ipynb notebook
-*.ipynb
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

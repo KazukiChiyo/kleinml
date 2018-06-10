@@ -16,12 +16,12 @@ class LinearRegression(object):
     def __init__(self):
         pass
 
-    # evaluate linear regression coefficient: w_hat = (X^T X)^-1 X^T Y
-    def fit(self, X, Y):
+    # evaluate linear regression coefficient: w_hat = (X^T X)^-1 X^T y
+    def fit(self, X, y):
         X = X.astype(float)
-        Y = Y.astype(float)
+        y = y.astype(float)
         X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
-        self.w = la.inv(X.T.dot(X)).dot(X.T).dot(Y)
+        self.w = la.inv(X.T.dot(X)).dot(X.T).dot(y)
         return self
 
     # predict an unlabeled dataset
@@ -30,12 +30,5 @@ class LinearRegression(object):
         return X.dot(self.w)
 
     # score of the model
-    def score(self, X, Y):
-        return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
-
-if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_eruption()
-    model = LinearRegression()
-    model.fit(train_x, train_y)
-    score = model.score(test_x, test_y)
-    print(score)
+    def score(self, X, y):
+        return 1 - sum((self.predict(X) - y)**2) / sum((y - np.mean(y))**2)
