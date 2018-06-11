@@ -59,10 +59,3 @@ class Lasso(object):
     # score of the model
     def score(self, X, Y):
         return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
-
-if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_eruption()
-    model = Lasso(alpha=0.2)
-    model.fit(train_x, train_y)
-    score = model.score(test_x, test_y)
-    print(score)

@@ -47,7 +47,6 @@ class Ridge(object):
         X = X.astype(float)
         Y = Y.astype(float)
         self.w = np.zeros((X.shape[1]+1, 1))
-        print(self.w)
         for i in range(self.max_iter):
             if self.shuffle: # if data is shuffled
                 shuffle_set = util.vbind(X, Y) # bind X and Y before shuffling
@@ -60,7 +59,6 @@ class Ridge(object):
                 if not update:
                     break
         self.w = self.w.flatten() # flatten w to a 1d array
-        print(self.w)
         return self
 
     # compute the gradient of loss with respect to w g[L(t)]
@@ -81,7 +79,6 @@ class Ridge(object):
         elif self.learning_rate == "invscaling":
             eta = self.eta0/pow(t, self.power_t)
         self.w = self.w - eta*1.0/self.batch_size*grad
-        print("At iteration "+str(t)+str(self.w))
         return True
 
     # predict an unlabeled dataset
@@ -92,10 +89,3 @@ class Ridge(object):
     # score of the model
     def score(self, X, Y):
         return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
-
-if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_eruption()
-    model = Ridge(batch_size=4, learning_rate="constant", eta0=0.01)
-    model.fit(train_x, train_y)
-    score = model.score(test_x, test_y)
-    print(score)
