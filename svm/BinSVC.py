@@ -1,19 +1,35 @@
-'''
-Binary support vector machine using Platt's SMO algorithm, trained on a custom rbf dataset.
+"""
 Author: Kexuan Zou
 Date: Apr 1, 2018
-Confusion matrix:
-[[10  1]
- [ 0  9]]
-Accuracy: 0.95
-'''
+"""
 
 import numpy as np
 import sys
 sys.path.append('../')
-import util
 
 class BinSVC(object):
+    """Binary support vector machine using Platt's SMO algorithm.
+    Parameters:
+    -----------
+    C: float, optional
+        Penalty parameter C of the error term.
+    kernel: string, optional
+        Specifies the kernel type to be used in the algorithm:
+        "linear": linear kernel <x, x'>
+        "rbf": rbf kernel exp(-gamma|x-x'|^2)
+        "poly": polynominal kernel (gamma<x, x'>+r)^d
+        "sigmoid": sigmoid kernel tanh((gamma<x, x'>+r)^d)
+    degree: int, optional
+        Degree of the polynomial kernel ("poly").
+    gamma: int, optional
+        Kernel coefficient for "rbf", "poly" and "sigmoid".
+    coef0: float, optional
+        Independent term in "poly" and "sigmoid".
+    tol: float
+        Precision of the solution.
+    max_iter: int, optional
+        Hard limit on iterations within solver
+    """
     def __init__ (self, C=1.0, kernel="rbf", degree=3, gamma="auto", coef0=0.0, tol=0.01, max_iter=1000):
         self.C = C
         self.kernel = kernel
@@ -24,9 +40,9 @@ class BinSVC(object):
         self.max_iter = max_iter
 
     # evaluate dual problem using SMO algorithm, evaulate weight of svm
-    def fit(self, feature, label):
-        self.x = np.matrix(feature)
-        self.y = np.matrix(label).T
+    def fit(self, X, y):
+        self.X = np.matrix(X)
+        self.y = np.matrix(y).T
         self.m = np.shape(self.y)[0]
         if self.gamma == "auto": # if auto, 1 / n_features will be used
             self.gamma = 1.0/self.m
@@ -35,7 +51,7 @@ class BinSVC(object):
         self.cache = np.matrix(np.zeros((self.m, 2))) # first column is a flag bit stating whether cache is valid
         self.k = np.matrix(np.zeros((self.m, self.m)))
         for i in range(self.m):
-            self.k[:,i] = self.kernel_transform(self.x, self.x[i,:])
+            self.k[:,i] = self.kernel_transform(self.X, self.X[i,:])
         self.smo()
         self.sv_x, self.sv_y, self.alphas = self.get_svs()
         return self
@@ -44,16 +60,16 @@ class BinSVC(object):
     def kernel_transform(self, X, A):
         m,n = np.shape(X)
         K = np.matrix(np.zeros((m,1)))
-        if self.kernel == "lin": # linear kernel: <x, x'>
+        if self.kernel == "lin": # linear kernel
             K = X * A.T
-        elif self.kernel == "rbf": # rbf kernel: exp(-gamma|x-x'|^2)
+        elif self.kernel == "rbf": # rbf kernel
             for j in range(m):
                 deltaRow = X[j,:] - A
                 K[j] = deltaRow*deltaRow.T
             K = np.exp(-self.gamma*K)
-        elif self.kernel == "poly": # polynomial kernel: (gamma<x, x'>+r)^d
+        elif self.kernel == "poly": # polynomial kernel
             K = (self.coef0 + np.inner(X, A)) ** self.degree
-        elif self.kernel == "sigmoid": # sigmoid kernel: tanh((gamma<x, x'>+r)^d)
+        elif self.kernel == "sigmoid": # sigmoid kernel
             K = np.tanh(self.gamma * np.dot(X, A) + self.coef0)
         return K
 
@@ -159,34 +175,23 @@ class BinSVC(object):
                 entire_flag = False #toggle entire set loop
             elif (pair_update_flag == 0):
                 entire_flag = True
-    
-    # get all support vectors, their corresponding labels, and non-zero alphas by finding the indices of non-zero alphas
+
+    # get all support vectors, their corresponding labels and alphas
     def get_svs(self):
         idx = np.nonzero(self.alphas.A>0)[0]
-        return self.x[idx], self.y[idx], self.alphas[idx]
+        return self.X[idx], self.y[idx], self.alphas[idx]
 
     # given a feature vector, predict its label
-    def predict_one(self, target):
-        tarmat = np.matrix(target)
+    def predict_one(self, x):
+        tarmat = np.matrix(x)
         k = self.kernel_transform(self.sv_x, tarmat)
         pred_mat = k.T * np.multiply(self.sv_y, self.alphas) + self.b
         return np.sign(pred_mat[0,0]).astype(int)
 
     # predict an unlabeled dataset
-    def predict(self, dataset):
+    def predict(self, X):
         pred = []
-        for i in range(len(dataset)):
-            val = self.predict_one(dataset[i])
+        for i in range(len(X)):
+            val = self.predict_one(X[i])
             pred.append(val)
         return pred
-
-if __name__ == '__main__':
-    train_x, train_y, test_x, test_y = util.load_rbf()
-    train_y = [-1 if x==0 else x for x in train_y]
-    model = BinSVC(gamma=5)
-    model.fit(train_x, train_y)
-    pred = model.predict(test_x)
-    pred = [0 if x==-1 else x for x in pred]
-    cm = util.confusion_matrix(test_y, pred)
-    print(cm)
-    print(util.accuracy(cm))

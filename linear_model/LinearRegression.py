@@ -8,7 +8,6 @@ import numpy as np
 import numpy.linalg as la
 import sys
 sys.path.append('../')
-import util
 
 class LinearRegression(object):
     """Linear model with least squares implementation.

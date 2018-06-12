@@ -7,7 +7,6 @@ Score: 0.837822200624
 import numpy as np
 import sys
 sys.path.append('../')
-import util
 
 class Lasso(object):
     """Linear least squares with l1 regularization implementation (coordinate descent).
@@ -32,22 +31,22 @@ class Lasso(object):
             return 0
 
     # evaluate w by coordinate descent
-    def fit(self, X, Y):
+    def fit(self, X, y):
         X = X.astype(float)
-        Y = Y.astype(float)
+        y = y.astype(float)
         X = np.column_stack([np.ones(len(X)), X])
         n_features = X.shape[0]
         w = np.zeros(X.shape[1])
-        w[0] = np.sum(Y - np.dot(X[:,1:], w[1:]))/n_features
+        w[0] = np.sum(y - np.dot(X[:,1:], w[1:]))/n_features
         for _ in range(self.max_iter):
             for i in range(1, len(w)):
                 w_iter = w[:] # perform a deep copy
                 w_iter[i] = 0.0
-                res_i = Y - np.dot(X, w_iter)
+                res_i = y - np.dot(X, w_iter)
                 w_star = np.dot(X[:, i], res_i)
                 threshold = self.alpha*n_features
                 w[i] = self.soft_threasholding(w_star, threshold)/(X[:, i]**2).sum()
-                w[0] = np.sum(Y - np.dot(X[:,1:], w[1:]))/n_features
+                w[0] = np.sum(y - np.dot(X[:,1:], w[1:]))/n_features
         self.w = w
         return self
 
@@ -57,5 +56,5 @@ class Lasso(object):
         return X.dot(self.w)
 
     # score of the model
-    def score(self, X, Y):
-        return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
+    def score(self, X, y):
+        return 1 - sum((self.predict(X) - y)**2) / sum((y - np.mean(y))**2)

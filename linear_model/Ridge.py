@@ -43,33 +43,33 @@ class Ridge(object):
         self.power_t = power_t
 
     # main training loop for stochastic gradient descent by repeatedly updating w on single steps until finished all iterations or batches.
-    def fit(self, X, Y):
+    def fit(self, X, y):
         X = X.astype(float)
-        Y = Y.astype(float)
+        y = y.astype(float)
         self.w = np.zeros((X.shape[1]+1, 1))
         for i in range(self.max_iter):
             if self.shuffle: # if data is shuffled
-                shuffle_set = util.vbind(X, Y) # bind X and Y before shuffling
+                shuffle_set = util.vbind(X, y) # bind X and Y before shuffling
                 np.random.shuffle(shuffle_set)
-                X_shuffle, Y_shuffle = shuffle_set[:,:-1], shuffle_set[:,-1:]
+                X_shuffle, y_shuffle = shuffle_set[:,:-1], shuffle_set[:,-1:]
             X_batch = X_shuffle[i*self.batch_size:min((i + 1)*self.batch_size, X_shuffle.shape[0])]
-            Y_batch = Y_shuffle[i*self.batch_size:min((i + 1)*self.batch_size, Y_shuffle.shape[0])]
+            y_batch = y_shuffle[i*self.batch_size:min((i + 1)*self.batch_size, y_shuffle.shape[0])]
             if len(X_batch) != 0:
-                update = self.update_step(X_batch, Y_batch, i)
+                update = self.update_step(X_batch, y_batch, i)
                 if not update:
                     break
         self.w = self.w.flatten() # flatten w to a 1d array
         return self
 
     # compute the gradient of loss with respect to w g[L(t)]
-    def gradient(self, y_hat, Y):
-        return np.dot(np.transpose(self.X), y_hat - Y)
+    def gradient(self, y_hat, y):
+        return np.dot(np.transpose(self.X), y_hat - y)
 
     # update w on a single step: w(t+1) = w(t) - eta*g[L(t)]/n
-    def update_step(self, X, Y, t):
+    def update_step(self, X, y, t):
         self.X = np.column_stack([np.ones(len(X)), X])
         y_hat = self.X.dot(self.w)
-        grad = self.gradient(y_hat, Y)
+        grad = self.gradient(y_hat, y)
         if np.sum(grad**2) <= self.tol_2: # if gradient change is less than tolerance, the desent process converges
             return False
         if self.learning_rate == "constant":
@@ -78,7 +78,7 @@ class Ridge(object):
             eta = self.eta0/(1.0 + self.alpha*t)
         elif self.learning_rate == "invscaling":
             eta = self.eta0/pow(t, self.power_t)
-        self.w = self.w - eta*1.0/self.batch_size*grad
+        self.w = self.w - eta*grad/self.batch_size
         return True
 
     # predict an unlabeled dataset
@@ -87,5 +87,5 @@ class Ridge(object):
         return X.dot(self.w)
 
     # score of the model
-    def score(self, X, Y):
-        return 1 - sum((self.predict(X) - Y)**2) / sum((Y - np.mean(Y))**2)
+    def score(self, X, y):
+        return 1 - sum((self.predict(X) - y)**2) / sum((y - np.mean(y))**2)
