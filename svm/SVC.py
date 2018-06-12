@@ -7,7 +7,6 @@ import numpy as np
 import sys
 sys.path.append('../')
 sys.path.append('../svm')
-import util
 from BinSVC import BinSVC
 
 class SVC(object):
