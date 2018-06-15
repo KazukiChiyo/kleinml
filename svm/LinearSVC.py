@@ -40,7 +40,7 @@ class LinearSVC(object):
 
     # main training loop using stochastic gradient descent, update w in max_iter number of small steps.
     def fit(self, X, y):
-        X = X.astype(float)
+        X, y = np.array(X.astype(float)), np.array(y)
         self.model = []
         for c in np.unique(y): # for each unique class, evaluate one-vs-rest models
             self.w = np.zeros((X.shape[1]+1, 1)) # weight plus intercept term
@@ -89,4 +89,5 @@ class LinearSVC(object):
 
     # predict the class labels for an entire dataset
     def predict(self, X):
+        X = np.array(X)
         return np.array([self.predict_one(x) for x in np.column_stack([np.ones(len(X)), X])])

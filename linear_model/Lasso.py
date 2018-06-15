@@ -5,8 +5,6 @@ Score: 0.837822200624
 """
 
 import numpy as np
-import sys
-sys.path.append('../')
 
 class Lasso(object):
     """Linear least squares with l1 regularization implementation (coordinate descent).
@@ -32,8 +30,7 @@ class Lasso(object):
 
     # evaluate w by coordinate descent
     def fit(self, X, y):
-        X = X.astype(float)
-        y = y.astype(float)
+        X, y = np.array(X.astype(float)), np.array(y.astype(float))
         X = np.column_stack([np.ones(len(X)), X])
         n_features = X.shape[0]
         w = np.zeros(X.shape[1])
@@ -52,9 +49,11 @@ class Lasso(object):
 
     # predict an unlabeled dataset
     def predict(self, X):
+        X = np.array(X)
         X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
         return X.dot(self.w)
 
     # score of the model
     def score(self, X, y):
+        X, y = np.array(X), np.array(y)
         return 1 - sum((self.predict(X) - y)**2) / sum((y - np.mean(y))**2)

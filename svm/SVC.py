@@ -5,7 +5,6 @@ Date: Apr 1, 2018
 
 import numpy as np
 import sys
-sys.path.append('../')
 sys.path.append('../svm')
 from BinSVC import BinSVC
 

@@ -4,8 +4,6 @@ Date: Apr 23, 2018.
 """
 
 import numpy as np
-import sys
-sys.path.append('../')
 
 class LogisticRegression(object):
     """Logistic regression with stochastic gradient descent.
@@ -25,7 +23,7 @@ class LogisticRegression(object):
 
     # main train loop for stochastic gradient descent by repeatedly updating w on single steps until finished all iterations.
     def fit(self, X, y):
-        X = X.astype(float)
+        X, y = np.array(X.astype(float)), np.array(y)
         X = np.column_stack([np.ones(len(X)), X])
         self.model = []
         for c in np.unique(y): # for each unique class, evaluate one-vs-rest models
@@ -52,4 +50,5 @@ class LogisticRegression(object):
 
     # predict the class labels for an entire dataset
     def predict(self, X):
+        X = np.array(X)
         return np.array([self.predict_one(x) for x in np.column_stack([np.ones(len(X)), X])])

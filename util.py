@@ -28,8 +28,8 @@ def load_diabetes(catog=True):
     diabetes = datasets.load_diabetes()
     x_train, x_test, y_train, y_test = train_test_split(diabetes.data, diabetes.target, test_size=.2)
     if catog == True:
-        y_train = [0 if y < 126 else 1 for y in y_train]
-        y_test = [0 if y < 126 else 1 for y in y_test]
+        y_train = np.array([0 if y < 126 else 1 for y in y_train])
+        y_test = np.array([0 if y < 126 else 1 for y in y_test])
     return x_train, y_train, x_test, y_test
 
 # load iris data

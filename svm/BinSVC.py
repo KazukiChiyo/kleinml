@@ -4,8 +4,6 @@ Date: Apr 1, 2018
 """
 
 import numpy as np
-import sys
-sys.path.append('../')
 
 class BinSVC(object):
     """Binary support vector machine using Platt's SMO algorithm.

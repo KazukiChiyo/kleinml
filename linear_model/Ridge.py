@@ -44,8 +44,7 @@ class Ridge(object):
 
     # main training loop for stochastic gradient descent by repeatedly updating w on single steps until finished all iterations or batches.
     def fit(self, X, y):
-        X = X.astype(float)
-        y = y.astype(float)
+        X, y = np.array(X.astype(float)), np.array(y.astype(float))
         self.w = np.zeros((X.shape[1]+1, 1))
         for i in range(self.max_iter):
             if self.shuffle: # if data is shuffled
@@ -83,9 +82,11 @@ class Ridge(object):
 
     # predict an unlabeled dataset
     def predict(self, X):
+        X = np.array(X)
         X = np.column_stack([np.ones(len(X)), X]) # append ones as intercept
         return X.dot(self.w)
 
     # score of the model
     def score(self, X, y):
+        X, y = np.array(X), np.array(y)
         return 1 - sum((self.predict(X) - y)**2) / sum((y - np.mean(y))**2)
