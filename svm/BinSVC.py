@@ -26,7 +26,19 @@ class BinSVC(object):
     tol: float
         Precision of the solution.
     max_iter: int, optional
-        Hard limit on iterations within solver
+        Hard limit on iterations within solver.
+    Attributes:
+    -----------
+    idx: array
+        Indices of support vectors.
+    sv_x: array
+        Support vectors.
+    sv_y: array
+        Labels of support vectors.
+    alphas: array
+        Coefficients of the support vector in the decision function.
+    b: float
+        Interrcept of the decision function.
     """
     def __init__ (self, C=1.0, kernel="rbf", degree=3, gamma="auto", coef0=0.0, tol=0.01, max_iter=1000):
         self.C = C
@@ -176,8 +188,8 @@ class BinSVC(object):
 
     # get all support vectors, their corresponding labels and alphas
     def get_svs(self):
-        idx = np.nonzero(self.alphas.A>0)[0]
-        return self.X[idx], self.y[idx], self.alphas[idx]
+        self.idx = np.nonzero(self.alphas.A>0)[0]
+        return self.X[self.idx], self.y[self.idx], self.alphas[self.idx]
 
     # given a feature vector, predict its label
     def predict_one(self, x):

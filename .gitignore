@@ -46,3 +46,6 @@ target/
 
 # mypy
 .mypy_cache/
+
+# html file
+*.html

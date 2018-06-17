@@ -9,6 +9,10 @@ import numpy.linalg as la
 
 class LinearRegression(object):
     """Linear model with least squares implementation.
+    Attributes:
+    -----------
+    w: array
+        Estimated weight of the linear model.
     """
     def __init__(self):
         pass

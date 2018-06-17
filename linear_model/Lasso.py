@@ -14,6 +14,10 @@ class Lasso(object):
         Strength of regularizaton and feature shrinkage.
     max_iter: int, optional
         Maximum number of iterations for gradient descent.
+    Attributes:
+    -----------
+    w: array
+        Estimated weight of the linear model.
     """
     def __init__(self, alpha=1.0, max_iter=1000):
         self.alpha = alpha

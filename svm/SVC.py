@@ -9,7 +9,7 @@ sys.path.append('../svm')
 from BinSVC import BinSVC
 
 class SVC(object):
-    """Support vector machine using Platt's SMO algorithm.
+    """C-Support vector classification using Platt's SMO algorithm.
     Parameters:
     -----------
     C: float, optional
@@ -29,9 +29,17 @@ class SVC(object):
     tol: float
         Precision of the solution.
     max_iter: int, optional
-        Hard limit on iterations within solver
+        Hard limit on iterations within solver.
     decision_function_shape: string
         Whether to return a one-vs-rest ("ovr") decision function or one-vs-one ("ovo").
+    Attributes:
+    -----------
+    idx: array
+        Indices of support vectors.
+    sv_x: array
+        Support vectors.
+    sv_y: array
+        Labels of support vectors.
     """
     def __init__ (self, C=1.0, kernel="rbf", degree=3, gamma="auto", coef0=0.0, tol=0.01, max_iter=1000, decision_function_shape="ovr"):
         self.C = C
@@ -46,7 +54,7 @@ class SVC(object):
     # fit features with their labels
     def fit(self, X, y):
         self.unique_labels = np.unique(y)
-        self.sv_x, self.sv_y = [], []
+        self.idx, self.sv_x, self.sv_y = [], []
         self.bin_svm = dict()
         if self.multi_class == 'ovr':
             self.fit_ovr(X, y)
@@ -60,6 +68,7 @@ class SVC(object):
         for _, ul in enumerate(self.unique_labels):
             mod_y = np.array([1 if elem == ul else -1 for elem in y]) # label all others -1
             self.bin_svm[ul] = BinSVC(C=self.C, degree=self.degree, kernel=self.kernel, gamma=self.gamma, coef0=self.coef0, tol=self.tol, max_iter=self.max_iter).fit(X, mod_y)
+            self.idx.extend(self.bin_svm[ul].idx.tolist())
             self.sv_x.extend(self.bin_svm[ul].sv_x.tolist())
             self.sv_y.extend(self.bin_svm[ul].sv_y.tolist())
 
@@ -77,6 +86,7 @@ class SVC(object):
                             new_x.append(X[k])
                             new_y.append(-1) # label its adversary class -1
                     self.bin_svm[(self.unique_labels[i], self.unique_labels[j])] = BinSVC(C=self.C, degree=self.degree, kernel=self.kernel, gamma=self.gamma, coef0=self.coef0, tol=self.tol, max_iter=self.max_iter).fit(new_x, new_y)
+                    self.idx.extend(self.bin_svm[(self.unique_labels[i], self.unique_labels[j])].idx.tolist())
                     self.sv_x.extend(self.bin_svm[(self.unique_labels[i], self.unique_labels[j])].sv_x.tolist())
                     self.sv_y.extend(self.bin_svm[(self.unique_labels[i], self.unique_labels[j])].sv_y.tolist())
 

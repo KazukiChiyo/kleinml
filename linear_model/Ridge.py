@@ -31,6 +31,10 @@ class Ridge(object):
         The initial learning rate.
     power_t : double, optional
         The exponent for inverse scaling learning rate.
+    Attributes:
+    -----------
+    w: array
+        Estimated weight of the linear model.
     """
     def __init__(self, alpha=0.1, shuffle=True, max_iter=1000, tol=0.0001, batch_size=16, learning_rate="constant", eta0=0.001, power_t=0.5):
         self.alpha = alpha
