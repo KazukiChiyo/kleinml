@@ -41,9 +41,10 @@ class LinearSVC(object):
     # main training loop using stochastic gradient descent, update w in max_iter number of small steps.
     def fit(self, X, y):
         X, y = np.array(X.astype(float)), np.array(y)
+        self.unique_labels = np.unique(y)
         self.model = []
-        for c in np.unique(y): # for each unique class, evaluate one-vs-rest models
-            self.w = np.zeros((X.shape[1]+1, 1)) # weight plus intercept term
+        for c in self.unique_labels: # for each unique class, evaluate one-vs-rest models
+            self.w = np.random.uniform(0, 1, (X.shape[1]+1, 1)) # weight plus intercept term
             y_copy = np.where(y == c, 1, -1) # if element = i, output 1, else output -1
             for i in range(self.max_iter):
                 if self.shuffle: # if data is shuffled
@@ -83,11 +84,15 @@ class LinearSVC(object):
         self.w = self.w - eta*grad/self.batch_size
         return True
 
-    # return the maximum-likelihood class label for a single element
-    def predict_one(self, x):
-        return max((x.dot(w), c) for w, c in self.model)[1]
+    def score(self, X):
+        scores = []
+        for w, c in self.model:
+            score = X.dot(w)
+            scores.append(score)
+        return np.array(scores).T
 
-    # predict the class labels for an entire dataset
     def predict(self, X):
         X = np.array(X)
-        return np.array([self.predict_one(x) for x in np.column_stack([np.ones(len(X)), X])])
+        X = np.column_stack([np.ones(len(X)), X]) # insert ones as intercept
+        scores = self.score(X)
+        return self.unique_labels[np.argmax(scores, axis=1)]
