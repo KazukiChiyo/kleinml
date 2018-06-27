@@ -1,8 +1,7 @@
-'''
-General helper functions.
+"""
 Author: Kexuan Zou
 Date: Mar 19, 2018
-'''
+"""
 
 try:
    import cPickle as pickle
@@ -97,6 +96,14 @@ def load_txt(rel_path, label_type="int"):
             labelMat.append(float(curLine[-1]))
     return np.array(dataMat), np.array(labelMat)
 
+# one-hot encoding for class labels
+def one_hot(indices, depth=None):
+    if not depth:
+        depth = len(np.unique(indices))
+    encoded = np.zeros((indices.shape[0], depth))
+    encoded[np.arange(indices.shape[0]), indices] = 1
+    return encoded.astype("float32")
+
 # split the feature set into groups by labels
 def split_by_class(feature, label):
     assert len(feature) == len(label), "Feature vector and label dimension does not match"
@@ -149,11 +156,8 @@ def accuracy(confusion_matrix):
 # overall accuracy with true label set and preducted label set
 def accuracy_score(true_y, pred_y):
     assert len(true_y) == len(pred_y), "True label set and predicted label set dimension does not match"
-    count = 0
-    for i in range(len(true_y)):
-        if true_y[i] == pred_y[i]:
-            count += 1
-    return float(count)/float(len(true_y))
+    print(np.count_nonzero(true_y == pred_y))
+    return np.sum(true_y == pred_y, axis=0)/len(true_y)
 
 # plot a 2d image array
 def implot(img, dim=None):

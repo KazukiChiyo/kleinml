@@ -5,9 +5,7 @@ Reference: https://github.com/eriklindernoren/ML-From-Scratch/blob/master/mlfrom
 """
 
 import numpy as np
-import sys
-sys.path.append("../neural_network")
-from funcs import Sigmoid, Softmax, ReLU, TanH
+from .base import Sigmoid, Softmax, ReLU, TanH
 from copy import copy
 
 class Layer(object):
@@ -16,6 +14,9 @@ class Layer(object):
     # set the shape of the inbound nodes
     def set_input_shape(self, shape):
         self.input_shape = shape
+
+    def layer_name(self):
+        return self.__class__.__name__
 
     # number of trainables in the layer
     def n_parameters(self):
@@ -48,7 +49,8 @@ class Dense(Layer):
         self.trainable = True
 
     def initialize(self, optimizer):
-        self.w = np.random.uniform(0, 1, (self.input_shape[0], self.n_units))
+        threshold = 1./np.sqrt(self.input_shape[0])
+        self.w = np.random.uniform(-threshold, threshold, (self.input_shape[0], self.n_units))
         self.b = np.zeros((1, self.n_units))
         self.w_opt, self.b_opt = copy(optimizer), copy(optimizer)
 
@@ -75,7 +77,7 @@ activation_functions = {
     "relu": ReLU,
     "sigmoid": Sigmoid,
     "softmax": Softmax,
-    "tanh": TanH,
+    "tanh": TanH
 }
 
 class Activation(Layer):
@@ -83,7 +85,11 @@ class Activation(Layer):
     Parameters:
     -----------
     name: string
-        name of the activation function to use.
+        name of the activation function to use:
+        "relu": ReLU
+        "sigmoid": Sigmoid
+        "softmax": Softmax
+        "tanh": TanH
     """
     def __init__(self, name):
         self.activation = activation_functions[name]()
