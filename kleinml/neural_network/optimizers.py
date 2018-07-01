@@ -21,6 +21,7 @@ class SGD(object):
             self.w_update = np.zeros_like(w)
         return w - self.learning_rate*grad
 
+
 class Adagrad(object):
     """Adagrad optimizer for training neural network.
     Parameters:

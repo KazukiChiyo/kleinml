@@ -34,6 +34,7 @@ class Layer(object):
     def output_shape(self):
         raise NotImplementedError
 
+
 class Dense(Layer):
     """Fully connected layer class that implements the operation: outputs = inputs*w + b.
     Parameters:
@@ -72,6 +73,7 @@ class Dense(Layer):
 
     def output_shape(self):
         return (self.n_units, )
+
 
 activation_functions = {
     "relu": ReLU,

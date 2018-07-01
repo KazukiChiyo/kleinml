@@ -2,6 +2,7 @@ import numpy as np
 from .optimizers import SGD, Adagrad
 from .base import SquareLoss, CrossEntropy
 from ..utils import load_data, train_test
+from .layers import Dense, Activation
 
 loss_functions = {
     "square": SquareLoss,
@@ -27,6 +28,8 @@ class NeuralNetwork(object):
         Loss function used in the optimization problem:
         "square": Square loss
         "cross_entropy": Cross entropy
+    layers: list, optional
+        A list of layers used to train the neural network.
     validation_data: tuple, optional
         Dataset (X, y) used for validation.
     max_iter: int, optional
@@ -36,13 +39,16 @@ class NeuralNetwork(object):
     one_hot: boolen
         Whether label set is nominal or categorical.
     """
-    def __init__(self, optimizer="adagrad", learning_rate=0.01, loss="cross_entropy", validation_data=None, max_iter=1000, batch_size=32, one_hot=False):
+    def __init__(self, optimizer="adagrad", learning_rate=0.01, loss="cross_entropy", layers=None, validation_data=None, max_iter=1000, batch_size=32, one_hot=False):
         self.optimizer = optimizers[optimizer](learning_rate=learning_rate)
         self.loss_function = loss_functions[loss]()
+        self.layers = []
+        if layers is not None:
+            for layer in layers:
+                self.add(layer)
         self.max_iter = max_iter
         self.batch_size = batch_size
         self.one_hot = one_hot
-        self.layers = []
         self.errors = {"training": [], "validation": []}
         self.val_set = None
         if validation_data:
@@ -105,3 +111,38 @@ class NeuralNetwork(object):
         if not self.one_hot:
             y_pred = np.argmax(y_pred, axis=1)
         return y_pred
+
+
+class LogisticRegression(object):
+    """Logistic regression using various optimization techniques.
+    Parameters:
+    -----------
+    optimizer: string, optional
+        Optimizer to perform optimization problem:
+        "sgd": Stochastic gradient descent
+        "adagrad": Adaptive gradient descent
+    learning_rate: float
+        Learning rate.
+    validation_data: tuple, optional
+        Dataset (X, y) used for validation.
+    max_iter: int, optional
+        Maximum number of iterations used in the optimizer.
+    batch_size: int
+        Size of the batch at each iteration.
+    one_hot: boolen
+        Whether label set is nominal or categorical.
+    """
+    def __init__(self, optimizer="adagrad", learning_rate=0.01, validation_data=None, max_iter=1000, batch_size=32, one_hot=False):
+        self.model = NeuralNetwork(optimizer=optimizer, learning_rate=learning_rate, loss="cross_entropy", layers=None, validation_data=validation_data, max_iter=max_iter, batch_size=batch_size, one_hot=one_hot)
+
+    def fit(self, X, y):
+        """Fit the model to data matrix X and targets y."""
+        n_features = X.shape[1]
+        n_classes = len(np.unique(y))
+        self.model.add(Dense(n_classes, input_shape=(n_features, )))
+        self.model.add(Activation("softmax"))
+        self.model.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self.model.predict(X)
