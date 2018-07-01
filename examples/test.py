@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../")
-from kleinml.neural_network import NeuralNetwork
+from kleinml.neural_network import NeuralNetwork, LogisticRegression
 from kleinml.neural_network.layers import Dense, Activation
 from kleinml.decomposition import PCA
 from kleinml.utils import load_data
@@ -13,13 +13,16 @@ pca.fit(train_x)
 train_x = pca.transform(train_x)
 test_x = pca.transform(test_x)
 n_features = train_x.shape[1]
-model = NeuralNetwork(max_iter=100, batch_size=32)
-model.add(Dense(32, input_shape=(n_features, )))
-model.add(Activation("relu"))
-model.add(Dense(16))
-model.add(Activation("relu"))
-model.add(Dense(3))
-model.add(Activation("softmax"))
+layers = (
+    Dense(32, input_shape=(n_features, )),
+    Activation("relu"),
+    Dense(16),
+    Activation("relu"),
+    Dense(3),
+    Activation("softmax")
+)
+model = NeuralNetwork(layers=layers, max_iter=100, batch_size=32)
+# model = LogisticRegression()
 model.fit(train_x, train_y)
 pred = model.predict(test_x)
 print(test_y, pred)
