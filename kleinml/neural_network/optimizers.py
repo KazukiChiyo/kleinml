@@ -5,6 +5,7 @@ Date: June 22, 2018s
 
 import numpy as np
 
+
 class SGD(object):
     """SGD optimizer for training neural network.
     Parameters:

@@ -1,6 +1,7 @@
 """
 Author: Kexuan Zou
 Date: June 22, 2018
+Reference: https://github.com/eriklindernoren/ML-From-Scratch/blob/master/mlfromscratch/deep_learning/activation_functions.py
 """
 
 import numpy as np
@@ -56,7 +57,7 @@ class Softmax(object):
 
 class ReLU(object):
     def __call__(self, x):
-        return np.maximum(x, 0, x)
+        return np.where(x >= 0, x, 0)
 
     def gradient(self, x):
         return np.where(x >= 0, 1, 0)
